@@ -16,8 +16,8 @@
     "expo": "^31.0.2",
     "jest": "^24.1.0",
     "jest-expo": "^32.0.0",
-    "react": "16.5.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
+    "react": "16.9.0",
+    "react-native": "0.61.2",
     "react-native-elements": "^1.1.0",
     "react-native-geolocation-service": "^2.0.0"
   },
