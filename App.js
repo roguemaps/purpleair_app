@@ -2,8 +2,9 @@ import React from "react";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import Cardview from "./components/cardview";
 import Appheader from "./components/header";
+import { geocodingClient } from "@mapbox/mapbox-sdk";
 import * as AqiMapping from "./utils/aqi_mapping";
-//I put a comment in here
+
 
 export default class App extends React.Component {
   constructor(props) {
@@ -21,6 +22,15 @@ export default class App extends React.Component {
 
   sendSearchRequest(value = "") {
     console.log("value", value);
+    geocodingClient.forwardGeocode({
+        query: value,
+        limit: 10
+      })
+      .send()
+      .then(response => {
+        const match = response.body;
+        console.log("response", match);
+      });
   }
 
   async getCurrentLocation() {}
