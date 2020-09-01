@@ -15,12 +15,12 @@
   "dependencies": {
     "@mapbox/mapbox-sdk": "^0.11.0",
     "expo": "^38.0.0",
-    "jest": "^24.1.0",
+    "jest": "^26.4.2",
     "jest-expo": "^38.0.0",
     "react": "16.11.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.2.tar.gz",
-    "react-native-elements": "^1.1.0",
-    "react-native-geolocation-service": "^2.0.0"
+    "react-native-elements": "^2.3.1",
+    "react-native-geolocation-service": "^5.0.0"
   },
   "devDependencies": {
     "babel-preset-expo": "^8.2.3"
