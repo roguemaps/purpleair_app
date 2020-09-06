@@ -29,7 +29,8 @@ export default class Cardview extends React.Component {
   render() {
     const { stationName, currentAqi } = this.props;
     return (
-      <Card containerStyle={styles.cardStyle} title={stationName}>
+      <Card containerStyle={styles.cardStyle}>
+        <Card.Title>{stationName}</Card.Title>
         <View style={styles.sideBySide}>
           <Text style={{ width: 200 }}>{this.getDescriptionText()}</Text>
           <Text

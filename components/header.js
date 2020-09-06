@@ -5,18 +5,14 @@ import HeaderSearch from "./header_search";
 
 export default class Appheader extends React.Component {
   render() {
-    const { stationName, handleSearch, ...props } = this.props;
+    const { stationName, ...props } = this.props;
     return (
       <Header
         backgroundColor={"#a4a"}
-        height={"120px"}
+        height={"520px"}
         outerContainerStyles={{
           alignSelf: "stretch",
-          height: 100
-        }}
-        centerComponent={<HeaderSearch handleSearch={handleSearch} />}
-        centerContainerStyle={{
-          backgroundColor: "white"
+          height: 200
         }}
       />
     );
