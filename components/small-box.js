@@ -5,7 +5,6 @@ import { StyleSheet, Text, View } from "react-native";
 export default class SmallBox extends React.Component {
   calculateColorObject() {
     const { aqi } = this.props;
-    console.log("aqi in color function", aqi);
     switch (true) {
       case aqi <= 50 && aqi >= 0:
         return { color: "black", backgroundColor: "#68E143" };
@@ -32,7 +31,6 @@ export default class SmallBox extends React.Component {
   render() {
     const { aqi } = this.props;
     const colorObject = this.calculateColorObject();
-    console.log("colorObject", colorObject.backgroundColor);
     return (
       <View
         style={{

@@ -12,7 +12,7 @@ export default class Appheader extends React.Component {
         height={"520px"}
         outerContainerStyles={{
           alignSelf: "stretch",
-          height: 200
+          height: 100
         }}
       />
     );

@@ -1,55 +1,71 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, FlatList, SafeAreaView } from "react-native";
+import Autocomplete from "react-native-autocomplete-input";
 import { Input, withTheme } from "react-native-elements";
 
-export default class HeaderSearch extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleSearchInput = this.handleSearchInput.bind(this);
+
+export default function HeaderSearch({placesArray, handleSearch, handleLocationSelect}) {
+  const [localSearchValue, changeLocalSearchValue] = useState("");
+
+  const handleSearchInput = (value = "") => {
+    changeLocalSearchValue(value);
+    handleSearch(value);
   }
 
-  handleSearchInput(value = "") {
-    this.props.handleSearch(value);
+  const handleLocationPress = (locCenter) => {
+    handleLocationSelect(locCenter);
+    changeLocalSearchValue("");
   }
 
-  renderSearchResults() {
-    const {
-      placesArray
-    } = this.props;
-    console.log("placesArray", placesArray)
-    // const placesArray = featuresArray.reduce((ar, currentFeature) => {
-    //   ar.push(currentFeature.place_name);
-    //   return ar;
-    // }, []);
-
+  const renderItem = (place) => {
+    // console.log("place", place);
     return(
-      placesArray.map((place) => {
-        <text>{place.place_name}</text>
-      })
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => handleLocationPress(place.item.center)}
+      >
+        <Text style={styles.title}>{place.item.place_name}</Text>
+      </TouchableOpacity>
     );
   }
 
-  render() {
-    const {
-      placesArray
-    } = this.props;
-    
     return (
-      <>
-        <Input
+      <SafeAreaView
+        style={styles.container}
+      >
+        <Autocomplete
+          data={placesArray}
           placeholder={"Enter a Zipcode or City"}
-          onChangeText={this.handleSearchInput}
-          inputContainerStyle={{
-            borderBottomWidth: 0,
-            backgroundColor: 'white',
-            padding: 5,
-          }}
+          defaultValue={localSearchValue}
+          onChangeText={text => handleSearchInput(text)}
+          renderItem={( place ) => (renderItem(place))}
+          style={styles.searchBar}
         />
-        {placesArray.length > 0 && 
-        <scrollView>
-          {this.renderSearchResults()}
-        </scrollView>}
-      </>
+      </SafeAreaView>
     );
-  }
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    zIndex: 2,
+  },
+  searchBar: {
+    padding: 10,
+  },
+  item: {
+    padding: 5,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    zIndex: 2,
+  },
+  title: {
+    fontSize: 18,
+  },
+});
+
+  
+
+
+
+
