@@ -58,6 +58,9 @@ export default function App() {
         //handle the response
         // "code": 429,
         // "message": "Rate limit exceeded. Try again in 12767 milli seconds.",
+        if(responseJson.code && responseJson.code === parseInt(429, 10)){
+          //setstate var to message
+        }
         if(responseJson.fields && responseJson.fields.length > 0){
           setFields(JSON.parse(JSON.stringify(responseJson.fields)));
         }
