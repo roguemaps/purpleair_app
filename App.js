@@ -5,6 +5,8 @@ import Appheader from "./components/header";
 import HeaderSearch from "./components/header_search";
 import * as AqiMapping from "./utils/aqi_mapping";
 
+import stubbed from "./stubbed.json";
+
 async function getCurrentLocation() {};
 
 
@@ -17,21 +19,26 @@ export default function App() {
   const [searchRequest, setSearchRequest] = useState("");
 
   const calculateCurrentAqi = (currentPM) => {
+    console.log("currentPM", currentPM);
     return AqiMapping.aqiBplAndBphFromPM(currentPM);
   }
 
   const storeSearchRequest = (value) => {
     setSearchRequest(value);
   }
+
+  const clearSearchRequest = () => {
+    setSearchRequest("");
+  }
   // autocomplete=true&types=postcode%2Cplace
   const sendSearchRequest = async () => {
-    console.log("value in sendSearchRequest", searchRequest);
     if(searchRequest.length > 0){
         try {
           let response = await fetch(
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchRequest}.json?access_token=pk.eyJ1IjoiamVzc2V2YW5kZXJ3ZXJmIiwiYSI6ImNrZWl2ZG83ZTF5eTEyd3M0bDIxYXBibWYifQ.tvMH-L7xgwtdlOzxnakdCw&autocomplete=true&types=postcode%2Cplace`
           );
           const responseJson = await response.json();
+          // console.log(responseJson);
           if(Object.keys(responseJson).length > 0 && responseJson.features && Array.isArray(responseJson.features)){
             setPlacesArray(JSON.parse(JSON.stringify(responseJson.features)));
           } else {
@@ -53,13 +60,14 @@ export default function App() {
         `https://www.purpleair.com/data.json?fetch=true&${boundingbox}`
       );
       const responseJson = await response.json();
-      console.log("responseJson", responseJson);
+      // console.log("responseJson", responseJson);
       if (Object.keys(responseJson).length > 0) {
         //handle the response
         // "code": 429,
         // "message": "Rate limit exceeded. Try again in 12767 milli seconds.",
         if(responseJson.code && responseJson.code === parseInt(429, 10)){
           //setstate var to message
+          console.log("too many attempts");
         }
         if(responseJson.fields && responseJson.fields.length > 0){
           setFields(JSON.parse(JSON.stringify(responseJson.fields)));
@@ -87,47 +95,40 @@ export default function App() {
   }
 
   const requestLocationData = (locCenter) => {
-    // console.log("clickity bbox", locCenter);
     const bbox = generateBoundingBox(locCenter);
     fetchSensorDataAsync(bbox);
     setPlacesArray([]);
-  }
-
-  // useEffect(() => {
-  //   fetchSensorDataAsync();
-  // }, []);
+    clearSearchRequest();
+  };
 
   useEffect(() => {
     sendSearchRequest();
   }, [searchRequest]);
 
-  const renderCards = () => {
-    if(fields && fields.length > 0){
-      const pmIndex = fields.indexOf("pm");
+  const renderCards = ({item}) => {
+    const station = item;
+
+    if(fields && fields.length > 0) {
       const labelIndex = fields.indexOf("Label");
       const IDindex = fields.indexOf("ID");
-      const pm_0Index = fields.indexOf("pm_0");
-      const pm_6Index = fields.indexOf("pm_6");
-  
-      if(data.length > 0) {
-        return data.map((station, index) => {
-          const aqiObject = calculateCurrentAqi(station[pmIndex]);
-          const historicalArray = station.slice(pm_0Index, pm_6Index);
 
+      if(station && station.length > 0) {
           return (
             <Cardview
-              key={IDindex + "-" + index}
+              key={station[IDindex]}
               stationName={station[labelIndex]}
               currentAqi={aqiObject.aqi}
               oldPMarray={historicalArray}
             />
           );
-        });
       } 
     }else {
       return <Text h1>"We have not found any stations!!"</Text>;
     }
   }
+
+  const aqiObject = calculateCurrentAqi(data.length > 0 ? data[0][5]: 0);
+  const historicalArray = data.length > 0 ? data[0].slice(5, 10): [];
 
   return(
     <View style = {styles.container}>
@@ -136,9 +137,13 @@ export default function App() {
         handleSearch = {(value) => {storeSearchRequest(value)}}
         handleLocationSelect = {requestLocationData}
         placesArray = {placesArray}
-      /> 
-      <SafeAreaView style={styles.container}>
-        <FlatList style={styles.cards}>{renderCards()}</FlatList> 
+      />
+      <SafeAreaView>
+        <FlatList
+          data={data}
+          renderItem={renderCards}
+          keyExtractor={(item) => `key - ${item[0]}`}
+        />
       </SafeAreaView>
     </View>
   );

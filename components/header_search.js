@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, FlatList, SafeAreaView } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, SafeAreaView } from "react-native";
 import Autocomplete from "react-native-autocomplete-input";
 import { Input, withTheme } from "react-native-elements";
 
@@ -18,7 +18,6 @@ export default function HeaderSearch({placesArray, handleSearch, handleLocationS
   }
 
   const renderItem = (place) => {
-    // console.log("place", place);
     return(
       <TouchableOpacity
         style={styles.item}
