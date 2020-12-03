@@ -3,9 +3,9 @@ import { StyleSheet, Text, View, FlatList, SafeAreaView } from "react-native";
 import Cardview from "./components/cardview";
 import Appheader from "./components/header";
 import HeaderSearch from "./components/header_search";
+import Loading from "./components/loading";
 import * as AqiMapping from "./utils/aqi_mapping";
-
-import stubbed from "./stubbed.json";
+import Toast from 'react-native-toast-message';
 
 async function getCurrentLocation() {};
 
@@ -17,9 +17,14 @@ export default function App() {
   const [data, setData] = useState([]);
   const [placesArray, setPlacesArray] = useState([]);
   const [searchRequest, setSearchRequest] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [purpleAirResponseError, setpurpleAirResponseError] = useState({error: false, response: ""});
+
+  const resetPaResponse = () => {
+    setpurpleAirResponseError({error: false, response: ""});
+  }
 
   const calculateCurrentAqi = (currentPM) => {
-    console.log("currentPM", currentPM);
     return AqiMapping.aqiBplAndBphFromPM(currentPM);
   }
 
@@ -56,19 +61,29 @@ export default function App() {
     ///needs more work. 
     ///I need to add variable for lat and lng data and I need to get this request to work again. 
     try {
+      console.log("sending request to purpleAir");
+      setLoading(true);
       let response = await fetch(
         `https://www.purpleair.com/data.json?fetch=true&${boundingbox}`
       );
       const responseJson = await response.json();
-      // console.log("responseJson", responseJson);
+      
+      //set loading to back to false
+      if(responseJson){
+        setLoading(false);
+      }
+
       if (Object.keys(responseJson).length > 0) {
         //handle the response
         // "code": 429,
         // "message": "Rate limit exceeded. Try again in 12767 milli seconds.",
         if(responseJson.code && responseJson.code === parseInt(429, 10)){
           //setstate var to message
-          console.log("too many attempts");
+          console.log("too many attempts", responseJson);
+          setpurpleAirResponseError({error: true, response: responseJson.message});
         }
+        //we passed the error cases. Reset error response. 
+        resetPaResponse();
         if(responseJson.fields && responseJson.fields.length > 0){
           setFields(JSON.parse(JSON.stringify(responseJson.fields)));
         }
@@ -79,6 +94,7 @@ export default function App() {
         //error handle here (consider launching error pop-over)
         console.log("looks like we did not get a response");
       }
+
     } catch (e) {
       console.log("there was a fetching error", e);
     }
@@ -130,6 +146,12 @@ export default function App() {
   const aqiObject = calculateCurrentAqi(data.length > 0 ? data[0][5]: 0);
   const historicalArray = data.length > 0 ? data[0].slice(5, 10): [];
 
+  // if(purpleAirResponseError.error && purpleAirResponseError.message !== ''){
+  //   Toast.show({
+  //     text1: purpleAirResponseError.message,
+  //   });
+  // }
+
   return(
     <View style = {styles.container}>
       <Appheader />
@@ -138,13 +160,15 @@ export default function App() {
         handleLocationSelect = {requestLocationData}
         placesArray = {placesArray}
       />
-      <SafeAreaView>
+      {loading && <Loading />}
+      <SafeAreaView style={styles.container}>
         <FlatList
           data={data}
           renderItem={renderCards}
           keyExtractor={(item) => `key - ${item[0]}`}
         />
       </SafeAreaView>
+      {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
     </View>
   );
 }
